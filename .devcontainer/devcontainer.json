@@ -1,0 +1,8 @@
+{
+	"build": {
+	  "dockerfile": "../base/Dockerfile"
+	},
+	"runArgs": [
+	  "--privileged"
+	]
+  }
