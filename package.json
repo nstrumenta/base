@@ -1,0 +1,19 @@
+{
+  "name": "toolchain",
+  "version": "1.0.0",
+  "description": "full base image for building nstrumenta",
+  "main": "\"\"",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nstrumenta/base.git"
+  },
+  "author": "nst-t",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nstrumenta/base/issues"
+  },
+  "homepage": "https://github.com/nstrumenta/base#readme"
+}
