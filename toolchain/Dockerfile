@@ -1,4 +1,4 @@
-FROM node:20.3-bullseye-slim AS build-base
+FROM node:23.11-bullseye-slim AS build-base
 RUN echo "build-base"
 
 # curl
