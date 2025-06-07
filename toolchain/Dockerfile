@@ -1,4 +1,4 @@
-FROM node:23.11-bullseye-slim AS build-base
+FROM node:24.1.0-bookworm-slim AS build-base
 RUN echo "build-base"
 
 # curl
@@ -27,7 +27,7 @@ RUN apt-get install zip -y
 RUN apt-get install python3 python3-pip -y
 
 #install gcsfuse
-RUN GCSFUSE_REPO=gcsfuse-bullseye; \
+RUN GCSFUSE_REPO=gcsfuse-bookworm; \
     echo "deb https://packages.cloud.google.com/apt $GCSFUSE_REPO main" | tee /etc/apt/sources.list.d/gcsfuse.list; \
     curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 
@@ -50,13 +50,14 @@ RUN echo \
     "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
     tee /etc/apt/sources.list.d/docker.list > /dev/null
 RUN apt-get update
-RUN apt-get install -y docker-ce=5:24.0.0-1~debian.11~bullseye  docker-ce-cli=5:24.0.0-1~debian.11~bullseye containerd.io docker-buildx-plugin docker-compose-plugin
+RUN apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-#go
-COPY --from=golang:1.21.4-bullseye /usr/local/go /usr/local/go
-ENV GOPATH /usr/local/go
-ENV PATH $GOPATH/bin:$PATH
+#go https://hub.docker.com/_/golang/tags
+COPY --from=golang:1.24.4-bookworm /usr/local/go /usr/local/go
+ENV GOPATH=/usr/local/go
+ENV PATH=$GOPATH/bin:$PATH
 
+#terraform https://hub.docker.com/r/hashicorp/terraform/tags
 COPY --from=hashicorp/terraform:1.6 /bin/terraform /bin/terraform
 
 COPY --from=gcr.io/google.com/cloudsdktool/google-cloud-cli:455.0.0-slim  /usr/lib/google-cloud-sdk /usr/lib/google-cloud-sdk
@@ -66,7 +67,7 @@ ENV PATH=/usr/lib/google-cloud-sdk/bin:$PATH
 
 # mcap cli
 RUN set -eux; \
-    MCAP_VERSION=v0.0.38; \
+    MCAP_VERSION=v0.0.50; \
     dpkgArch="$(dpkg --print-architecture)"; \
     url=; \
     case "${dpkgArch##*-}" in \

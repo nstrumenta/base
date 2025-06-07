@@ -1,6 +1,6 @@
 {
   "name": "toolchain",
-  "version": "1.23.11",
+  "version": "24.1.0",
   "description": "full base image for building nstrumenta",
   "main": "\"\"",
   "scripts": {

@@ -27,16 +27,6 @@ else
     docker buildx create --name $BUILDX_CONTAINER_NAME --platform linux/arm64,linux/amd64 --driver docker-container --use
 fi
 
-# gcloud-node
-pushd gcloud-node
-docker buildx build \
-    $BUILDX_ARGS \
-    --platform linux/arm64,linux/amd64 \
-    --tag nstrumenta/gcloud-node:$DOCKER_TAG \
-    --tag nstrumenta/gcloud-node:latest \
-    .
-popd
-
 # toolchain
 pushd toolchain
 docker buildx build \

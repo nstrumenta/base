@@ -4,5 +4,12 @@
 	},
 	"runArgs": [
 		"--privileged"
-	]
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"eamodio.gitlens"
+			]
+		}
+	}
 }
