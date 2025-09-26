@@ -25,6 +25,7 @@ RUN apt-get install zip -y
 
 # python
 RUN apt-get install python3 python3-pip -y
+RUN pip3 config set global.break-system-packages true
 
 #install gcsfuse
 RUN GCSFUSE_REPO=gcsfuse-bookworm; \
