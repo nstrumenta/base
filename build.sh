@@ -3,9 +3,9 @@
 if [ -n "$DOCKER_TAG" ]; then
     echo "using DOCKER_TAG=$DOCKER_TAG"
 else
-    PACKAGE_VERSION=$(cat package.json | jq -r '.version')
-    echo "package version $PACKAGE_VERSION"
-    DOCKER_TAG=$PACKAGE_VERSION
+    # Use git tag, fallback to 'dev' if no tag exists
+    DOCKER_TAG=$(git describe --tags --exact-match 2>/dev/null || echo "dev")
+    echo "version from git tag: $DOCKER_TAG"
 fi
 
 # login to docker
@@ -27,32 +27,62 @@ else
     docker buildx create --name $BUILDX_CONTAINER_NAME --platform linux/arm64,linux/amd64 --driver docker-container --use
 fi
 
-# toolchain
-pushd toolchain
+# base image
+pushd base
 docker buildx build \
     $BUILDX_ARGS \
-    --cache-from nstrumenta/toolchain:buildcache-arm64 \
-    --cache-from nstrumenta/toolchain:buildcache-amd64 \
+    --cache-from nstrumenta/base:buildcache-arm64 \
+    --cache-from nstrumenta/base:buildcache-amd64 \
     --platform linux/arm64,linux/amd64 \
-    --tag nstrumenta/toolchain:$DOCKER_TAG \
-    --tag nstrumenta/toolchain:latest \
+    --tag nstrumenta/base:$DOCKER_TAG \
+    --tag nstrumenta/base:latest \
     .
 
 # base caches
 docker buildx build \
     $BUILDX_ARGS \
-    --cache-from nstrumenta/toolchain:buildcache-arm64 \
-    --cache-to nstrumenta/toolchain:buildcache-arm64 \
+    --cache-from nstrumenta/base:buildcache-arm64 \
+    --cache-to nstrumenta/base:buildcache-arm64 \
     --platform linux/arm64 \
-    --tag nstrumenta/toolchain:buildcache-arm64 \
+    --tag nstrumenta/base:buildcache-arm64 \
     .
 
 docker buildx build \
     $BUILDX_ARGS \
-    --cache-from nstrumenta/toolchain:buildcache-amd64 \
-    --cache-to nstrumenta/toolchain:buildcache-amd64 \
+    --cache-from nstrumenta/base:buildcache-amd64 \
+    --cache-to nstrumenta/base:buildcache-amd64 \
     --platform linux/amd64 \
-    --tag nstrumenta/toolchain:buildcache-amd64 \
+    --tag nstrumenta/base:buildcache-amd64 \
+    .
+
+popd
+
+# developer image (extends base)
+pushd developer
+docker buildx build \
+    $BUILDX_ARGS \
+    --cache-from nstrumenta/developer:buildcache-arm64 \
+    --cache-from nstrumenta/developer:buildcache-amd64 \
+    --platform linux/arm64,linux/amd64 \
+    --tag nstrumenta/developer:$DOCKER_TAG \
+    --tag nstrumenta/developer:latest \
+    .
+
+# developer caches
+docker buildx build \
+    $BUILDX_ARGS \
+    --cache-from nstrumenta/developer:buildcache-arm64 \
+    --cache-to nstrumenta/developer:buildcache-arm64 \
+    --platform linux/arm64 \
+    --tag nstrumenta/developer:buildcache-arm64 \
+    .
+
+docker buildx build \
+    $BUILDX_ARGS \
+    --cache-from nstrumenta/developer:buildcache-amd64 \
+    --cache-to nstrumenta/developer:buildcache-amd64 \
+    --platform linux/amd64 \
+    --tag nstrumenta/developer:buildcache-amd64 \
     .
 
 popd
