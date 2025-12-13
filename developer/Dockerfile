@@ -4,6 +4,9 @@
 
 FROM nstrumenta/base:latest
 
+# Install Go (required for beads)
+RUN apt-get update && apt-get install -y golang-go && rm -rf /var/lib/apt/lists/*
+
 # Beads - git-backed issue tracker for AI agents
 RUN curl -fsSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash
 
