@@ -8,7 +8,17 @@ FROM nstrumenta/base:latest
 RUN apt-get update && apt-get install -y golang-go && rm -rf /var/lib/apt/lists/*
 
 # Beads - git-backed issue tracker for AI agents
-RUN curl -fsSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash
+# Install directly from GitHub releases instead of using the install script
+RUN set -eux; \
+    BEADS_VERSION=v0.29.0; \
+    dpkgArch="$(dpkg --print-architecture)"; \
+    case "${dpkgArch##*-}" in \
+        'amd64') url="https://github.com/steveyegge/beads/releases/download/${BEADS_VERSION}/bd-linux-amd64" ;; \
+        'arm64') url="https://github.com/steveyegge/beads/releases/download/${BEADS_VERSION}/bd-linux-arm64" ;; \
+        *) echo "unsupported architecture: ${dpkgArch}"; exit 1 ;; \
+    esac; \
+    curl -fsSL "$url" -o /usr/local/bin/bd && \
+    chmod +x /usr/local/bin/bd
 
 # Configure git to use beads merge driver globally
 RUN git config --global merge.beads.driver "bd merge %O %A %B" && \
