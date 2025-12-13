@@ -1,6 +1,6 @@
 # nstrumenta/developer - Full development environment
 # Extends nstrumenta/base with development tools
-# Used by: .devcontainer, local development
+# Used by: .devcontainer, local development, integration tests
 
 FROM nstrumenta/base:latest
 
@@ -15,9 +15,10 @@ RUN git config --global merge.beads.driver "bd merge %O %A %B" && \
 COPY --from=gcr.io/google.com/cloudsdktool/google-cloud-cli:latest /usr/lib/google-cloud-sdk /usr/lib/google-cloud-sdk
 ENV PATH=/usr/lib/google-cloud-sdk/bin:$PATH
 
-# Development tools: Chromium for Angular tests, Python packaging tools
+# Development tools: Chromium for Angular tests, tmux
 RUN apt-get update && apt-get install -y \
     chromium \
+    chromium-driver \
     tmux \
     && rm -rf /var/lib/apt/lists/*
 
