@@ -26,7 +26,6 @@ Full development environment extending base with deployment and dev tools.
 
 **Includes everything in base plus:**
 - Google Cloud SDK (gcloud)
-- Docker client + buildx + compose (for integration tests)
 - Beads issue tracker
 - Chromium (for Angular tests)
 - Python packaging tools (setuptools, wheel, twine)
@@ -34,7 +33,9 @@ Full development environment extending base with deployment and dev tools.
 - GitHub CLI (gh)
 - tmux
 
-**Size:** ~680MB
+**Note**: Docker is accessed via host socket mount in devcontainer, not installed in image.
+
+**Size:** ~580MB
 
 **Usage:**
 ```dockerfile

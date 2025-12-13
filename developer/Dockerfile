@@ -11,15 +11,6 @@ RUN curl -fsSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/i
 RUN git config --global merge.beads.driver "bd merge %O %A %B" && \
     git config --global merge.beads.name "Beads JSONL merge driver"
 
-# Docker client - for integration tests and local development
-RUN install -m 0755 -d /etc/apt/keyrings \
-    && curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
-    && chmod a+r /etc/apt/keyrings/docker.gpg \
-    && echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
-    && apt-get update \
-    && apt-get install -y docker-ce-cli docker-buildx-plugin docker-compose-plugin \
-    && rm -rf /var/lib/apt/lists/*
-
 # Google Cloud SDK - for deployment and GCP integration
 COPY --from=gcr.io/google.com/cloudsdktool/google-cloud-cli:latest /usr/lib/google-cloud-sdk /usr/lib/google-cloud-sdk
 ENV PATH=/usr/lib/google-cloud-sdk/bin:$PATH
@@ -63,7 +54,6 @@ ENV CHROME_BIN=/usr/bin/chromium
 
 # Verify installations
 RUN bd --version && \
-    docker --version && \
     gcloud --version && \
     chromium --version && \
     twine --version && \
