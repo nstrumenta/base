@@ -4,26 +4,6 @@
 
 FROM nstrumenta/base:latest
 
-# Install Go (required for beads)
-RUN apt-get update && apt-get install -y golang-go && rm -rf /var/lib/apt/lists/*
-
-# Beads - git-backed issue tracker for AI agents
-# Install directly from GitHub releases instead of using the install script
-RUN set -eux; \
-    BEADS_VERSION=v0.29.0; \
-    dpkgArch="$(dpkg --print-architecture)"; \
-    case "${dpkgArch##*-}" in \
-        'amd64') url="https://github.com/steveyegge/beads/releases/download/${BEADS_VERSION}/bd-linux-amd64" ;; \
-        'arm64') url="https://github.com/steveyegge/beads/releases/download/${BEADS_VERSION}/bd-linux-arm64" ;; \
-        *) echo "unsupported architecture: ${dpkgArch}"; exit 1 ;; \
-    esac; \
-    curl -fsSL "$url" -o /usr/local/bin/bd && \
-    chmod +x /usr/local/bin/bd
-
-# Configure git to use beads merge driver globally
-RUN git config --global merge.beads.driver "bd merge %O %A %B" && \
-    git config --global merge.beads.name "Beads JSONL merge driver"
-
 # Google Cloud SDK - for deployment and GCP integration
 COPY --from=gcr.io/google.com/cloudsdktool/google-cloud-cli:latest /usr/lib/google-cloud-sdk /usr/lib/google-cloud-sdk
 ENV PATH=/usr/lib/google-cloud-sdk/bin:$PATH
@@ -67,13 +47,12 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | d
 ENV CHROME_BIN=/usr/bin/chromium
 
 # Verify installations
-RUN bd --version && \
-    gcloud --version && \
+RUN gcloud --version && \
     chromium --version && \
     twine --version && \
     mcap version && \
     gh --version
 
 LABEL org.opencontainers.image.source="https://github.com/nstrumenta/base"
-LABEL org.opencontainers.image.description="nstrumenta/developer: Full development environment with beads, chromium, python tools"
+LABEL org.opencontainers.image.description="nstrumenta/developer: Full development environment with gcloud, chromium, python tools"
 LABEL org.opencontainers.image.version="24.12.0"
