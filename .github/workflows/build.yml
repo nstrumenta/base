@@ -55,51 +55,29 @@ jobs:
             echo "release=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Build base image (test only)
-        if: steps.is-release.outputs.release == 'false'
+      - name: Build and conditionally push base image
         uses: docker/build-push-action@v5
         with:
           context: ./base
           platforms: linux/amd64,linux/arm64
-          push: false
+          push: ${{ steps.is-release.outputs.release == 'true' }}
           tags: |
             nstrumenta/base:${{ steps.package-version.outputs.version }}
             nstrumenta/base:latest
+          cache-to: type=inline
+          outputs: ${{ steps.is-release.outputs.release == 'true' && 'type=registry' || 'type=cacheonly' }}
 
-      - name: Build and push base image (release)
-        if: steps.is-release.outputs.release == 'true'
-        uses: docker/build-push-action@v5
-        with:
-          context: ./base
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: |
-            nstrumenta/base:${{ steps.package-version.outputs.version }}
-            nstrumenta/base:latest
-          cache-to: type=registry,ref=nstrumenta/base:buildcache,mode=max
-
-      - name: Build developer image (test only)
-        if: steps.is-release.outputs.release == 'false'
+      - name: Build and conditionally push developer image
         uses: docker/build-push-action@v5
         with:
           context: ./developer
           platforms: linux/amd64,linux/arm64
-          push: false
+          push: ${{ steps.is-release.outputs.release == 'true' }}
           tags: |
             nstrumenta/developer:${{ steps.package-version.outputs.version }}
             nstrumenta/developer:latest
-
-      - name: Build and push developer image (release)
-        if: steps.is-release.outputs.release == 'true'
-        uses: docker/build-push-action@v5
-        with:
-          context: ./developer
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: |
-            nstrumenta/developer:${{ steps.package-version.outputs.version }}
-            nstrumenta/developer:latest
-          cache-to: type=registry,ref=nstrumenta/developer:buildcache,mode=max
+          cache-from: type=registry,ref=nstrumenta/base:latest
+          outputs: ${{ steps.is-release.outputs.release == 'true' && 'type=registry' || 'type=cacheonly' }}
 
       - name: Build summary
         run: |
