@@ -51,49 +51,33 @@ jobs:
         run: |
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             echo "release=true" >> $GITHUB_OUTPUT
+            echo "base-tag=nstrumenta/base:${{ steps.package-version.outputs.version }},nstrumenta/base:latest" >> $GITHUB_OUTPUT
+            echo "dev-tag=nstrumenta/developer:${{ steps.package-version.outputs.version }},nstrumenta/developer:latest" >> $GITHUB_OUTPUT
           else
             echo "release=false" >> $GITHUB_OUTPUT
+            echo "base-tag=nstrumenta/base:test-${{ github.sha }}" >> $GITHUB_OUTPUT
+            echo "dev-tag=nstrumenta/developer:test-${{ github.sha }}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Build base image locally for developer build
-        if: steps.is-release.outputs.release == 'false'
-        uses: docker/build-push-action@v5
-        with:
-          context: ./base
-          platforms: linux/amd64
-          load: true
-          tags: nstrumenta/base:latest
-
-      - name: Build and push base image (release)
-        if: steps.is-release.outputs.release == 'true'
+      - name: Build and push base image
         uses: docker/build-push-action@v5
         with:
           context: ./base
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: |
-            nstrumenta/base:${{ steps.package-version.outputs.version }}
-            nstrumenta/base:latest
+          tags: ${{ steps.is-release.outputs.base-tag }}
 
-      - name: Build developer image (test only)
+      - name: Update developer Dockerfile to use correct base tag
         if: steps.is-release.outputs.release == 'false'
-        uses: docker/build-push-action@v5
-        with:
-          context: ./developer
-          platforms: linux/amd64
-          load: true
-          tags: nstrumenta/developer:latest
+        run: sed -i 's|FROM nstrumenta/base:latest|FROM nstrumenta/base:test-${{ github.sha }}|g' developer/Dockerfile
 
-      - name: Build and push developer image (release)
-        if: steps.is-release.outputs.release == 'true'
+      - name: Build and conditionally push developer image
         uses: docker/build-push-action@v5
         with:
           context: ./developer
           platforms: linux/amd64,linux/arm64
-          push: true
-          tags: |
-            nstrumenta/developer:${{ steps.package-version.outputs.version }}
-            nstrumenta/developer:latest
+          push: ${{ steps.is-release.outputs.release == 'true' }}
+          tags: ${{ steps.is-release.outputs.dev-tag }}
 
       - name: Build summary
         run: |
