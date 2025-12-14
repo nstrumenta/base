@@ -18,7 +18,7 @@ Minimal CI/CD image for building and testing.
 ```dockerfile
 FROM nstrumenta/base:latest
 # or pin to specific version
-FROM nstrumenta/base:24.12.0
+FROM nstrumenta/base:2.0.0
 ```
 
 ### nstrumenta/developer
@@ -26,14 +26,12 @@ Full development environment extending base with deployment and dev tools.
 
 **Includes everything in base plus:**
 - Google Cloud SDK (gcloud)
-- Beads issue tracker
 - Chromium (for Angular tests)
 - Python packaging tools (setuptools, wheel, twine)
 - MCAP CLI (for inspecting/converting MCAP files)
 - GitHub CLI (gh)
+- Docker CLI v29.1.3 (uses host daemon via socket mount)
 - tmux
-
-**Note**: Docker is accessed via host socket mount in devcontainer, not installed in image.
 
 **Size:** ~580MB
 
@@ -41,20 +39,5 @@ Full development environment extending base with deployment and dev tools.
 ```dockerfile
 FROM nstrumenta/developer:latest
 # or pin to specific version
-FROM nstrumenta/developer:24.12.0
+FROM nstrumenta/developer:2.0.0
 ```
-
-## Building and Publishing
-
-With `dockerd` running:
-
-```shell
-BUILDX_ARGS="--push" ./build.sh 
-```
-
-This creates multi-arch images (amd64 + arm64) and pushes:
-- `nstrumenta/base:24.12.0` + `nstrumenta/base:latest`
-- `nstrumenta/developer:24.12.0` + `nstrumenta/developer:latest`
-
-
-

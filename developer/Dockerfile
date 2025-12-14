@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Python packaging tools for publishing
-RUN python3 -m pip install --upgrade pip setuptools wheel twine
+RUN python3 -m pip install twine
 
 # MCAP CLI - useful for inspecting/converting MCAP files during development
 RUN set -eux; \
@@ -73,4 +73,3 @@ RUN gcloud --version && \
 
 LABEL org.opencontainers.image.source="https://github.com/nstrumenta/base"
 LABEL org.opencontainers.image.description="nstrumenta/developer: Full development environment with gcloud, chromium, python tools"
-LABEL org.opencontainers.image.version="24.12.0"

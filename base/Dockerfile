@@ -26,4 +26,3 @@ RUN node --version && \
 
 LABEL org.opencontainers.image.source="https://github.com/nstrumenta/base"
 LABEL org.opencontainers.image.description="nstrumenta/base: Node.js 24.12.0 LTS with minimal build/test tools"
-LABEL org.opencontainers.image.version="24.12.0"
