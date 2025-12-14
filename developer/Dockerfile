@@ -50,6 +50,13 @@ RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /
     && apt-get install -y docker-ce-cli docker-compose-plugin \
     && rm -rf /var/lib/apt/lists/*
 
+# Terraform CLI
+RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg \
+    && echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com bookworm main" | tee /etc/apt/sources.list.d/hashicorp.list \
+    && apt-get update \
+    && apt-get install -y terraform \
+    && rm -rf /var/lib/apt/lists/*
+
 # Environment for Chromium
 ENV CHROME_BIN=/usr/bin/chromium
 
@@ -60,7 +67,8 @@ RUN gcloud --version && \
     mcap version && \
     gh --version && \
     docker --version && \
-    docker compose version
+    docker compose version && \
+    terraform --version
 
 LABEL org.opencontainers.image.source="https://github.com/nstrumenta/base"
 LABEL org.opencontainers.image.description="nstrumenta/developer: Full development environment with gcloud, chromium, python tools"
