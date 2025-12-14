@@ -43,6 +43,23 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | d
     && apt-get install gh -y \
     && rm -rf /var/lib/apt/lists/*
 
+# Docker CLI (uses host's docker daemon via socket mount)
+RUN set -eux; \
+    DOCKER_VERSION=29.1.3; \
+    dpkgArch="$(dpkg --print-architecture)"; \
+    case "${dpkgArch##*-}" in \
+    'amd64') \
+    url="https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz"; \
+    ;; \
+    'arm64') \
+    url="https://download.docker.com/linux/static/stable/aarch64/docker-${DOCKER_VERSION}.tgz"; \
+    ;; \
+    *) echo >&2 "error: unsupported architecture '$dpkgArch'"; exit 1 ;; \
+    esac; \
+    curl -fsSL "$url" | tar xz -C /tmp && \
+    mv /tmp/docker/docker /usr/local/bin/docker && \
+    rm -rf /tmp/docker
+
 # Environment for Chromium
 ENV CHROME_BIN=/usr/bin/chromium
 
@@ -51,7 +68,8 @@ RUN gcloud --version && \
     chromium --version && \
     twine --version && \
     mcap version && \
-    gh --version
+    gh --version && \
+    docker --version
 
 LABEL org.opencontainers.image.source="https://github.com/nstrumenta/base"
 LABEL org.opencontainers.image.description="nstrumenta/developer: Full development environment with gcloud, chromium, python tools"
