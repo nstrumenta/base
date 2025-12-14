@@ -15,7 +15,8 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     && rm -rf /var/lib/apt/lists/* \
-    && rm -f /usr/lib/python*/EXTERNALLY-MANAGED
+    && rm -f /usr/lib/python*/EXTERNALLY-MANAGED \
+    && python3 -m pip install --upgrade setuptools
 
 # Verify installations
 RUN node --version && \

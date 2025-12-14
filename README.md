@@ -17,8 +17,6 @@ Minimal CI/CD image for building and testing.
 **Usage:**
 ```dockerfile
 FROM nstrumenta/base:latest
-# or pin to specific version
-FROM nstrumenta/base:2.0.0
 ```
 
 ### nstrumenta/developer
@@ -38,6 +36,4 @@ Full development environment extending base with deployment and dev tools.
 **Usage:**
 ```dockerfile
 FROM nstrumenta/developer:latest
-# or pin to specific version
-FROM nstrumenta/developer:2.0.0
 ```

@@ -30,51 +30,21 @@ if git rev-parse "v$VERSION" >/dev/null 2>&1; then
 fi
 
 # Check if working directory is clean
-HAS_CHANGES=false
 if ! git diff-index --quiet HEAD --; then
-  HAS_CHANGES=true
+  echo "Error: Working directory has uncommitted changes"
+  echo "Please commit changes before releasing"
+  exit 1
 fi
 
-if [ "$HAS_CHANGES" = true ]; then
-  echo "✏️  Updating version in README..."
+echo "✅ Working directory is clean"
+echo ""
 
-  # Update version examples in README.md
-  sed -i.bak "s/nstrumenta\/base:[0-9]\+\.[0-9]\+\.[0-9]\+/nstrumenta\/base:$VERSION/g" README.md
-  sed -i.bak "s/nstrumenta\/developer:[0-9]\+\.[0-9]\+\.[0-9]\+/nstrumenta\/developer:$VERSION/g" README.md
-  rm README.md.bak
-
-  echo "✅ Version updated to $VERSION"
-  echo ""
-
-  # Show what changed
-  echo "📝 Changes:"
-  git diff README.md
-  echo ""
-
-  # Confirm before committing
-  read -p "Commit these changes and create tag v$VERSION? (y/N) " -n 1 -r
-  echo
-  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "Aborted. Rolling back changes..."
-    git checkout -- README.md
-    exit 1
-  fi
-
-  # Commit and tag
-  echo "📦 Committing changes..."
-  git add README.md
-  git commit -m "Release v$VERSION"
-else
-  echo "✅ Working directory is clean"
-  echo ""
-  
-  # Confirm before tagging
-  read -p "Create tag v$VERSION on current commit? (y/N) " -n 1 -r
-  echo
-  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "Aborted."
-    exit 1
-  fi
+# Confirm before tagging
+read -p "Create tag v$VERSION on current commit? (y/N) " -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+  echo "Aborted."
+  exit 1
 fi
 
 echo "🏷️  Creating tag v$VERSION..."
