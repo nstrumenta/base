@@ -81,10 +81,10 @@ echo "🏷️  Creating tag v$VERSION..."
 git tag -a "v$VERSION" -m "Release v$VERSION"
 
 echo ""
-echo "✨ Release v$VERSION prepared!"
+echo "🚀 Pushing to origin..."
+git push --follow-tags origin main
+
 echo ""
-echo "Next steps:"
-echo "  1. Review the commit: git show"
-echo "  2. Push when ready: git push origin main && git push origin v$VERSION"
+echo "✨ Release v$VERSION complete!"
 echo ""
-echo "Note: Pushing the tag will trigger GitHub Actions to build and publish the images"
+echo "Note: GitHub Actions will now build and publish the images"
