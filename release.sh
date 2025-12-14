@@ -23,47 +23,59 @@ fi
 echo "🚀 Preparing release v$VERSION"
 echo ""
 
-# Check if working directory is clean
-if ! git diff-index --quiet HEAD --; then
-  echo "Error: Working directory has uncommitted changes"
-  echo "Please commit or stash changes before releasing"
-  exit 1
-fi
-
 # Check if tag already exists
 if git rev-parse "v$VERSION" >/dev/null 2>&1; then
   echo "Error: Tag v$VERSION already exists"
   exit 1
 fi
 
-echo "✏️  Updating version in README..."
-
-# Update version examples in README.md
-sed -i.bak "s/nstrumenta\/base:[0-9]\+\.[0-9]\+\.[0-9]\+/nstrumenta\/base:$VERSION/g" README.md
-sed -i.bak "s/nstrumenta\/developer:[0-9]\+\.[0-9]\+\.[0-9]\+/nstrumenta\/developer:$VERSION/g" README.md
-rm README.md.bak
-
-echo "✅ Version updated to $VERSION"
-echo ""
-
-# Show what changed
-echo "📝 Changes:"
-git diff README.md
-echo ""
-
-# Confirm before committing
-read -p "Commit these changes and create tag v$VERSION? (y/N) " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-  echo "Aborted. Rolling back changes..."
-  git checkout -- README.md
-  exit 1
+# Check if working directory is clean
+HAS_CHANGES=false
+if ! git diff-index --quiet HEAD --; then
+  HAS_CHANGES=true
 fi
 
-# Commit and tag
-echo "📦 Committing changes..."
-git add README.md
-git commit -m "Release v$VERSION"
+if [ "$HAS_CHANGES" = true ]; then
+  echo "✏️  Updating version in README..."
+
+  # Update version examples in README.md
+  sed -i.bak "s/nstrumenta\/base:[0-9]\+\.[0-9]\+\.[0-9]\+/nstrumenta\/base:$VERSION/g" README.md
+  sed -i.bak "s/nstrumenta\/developer:[0-9]\+\.[0-9]\+\.[0-9]\+/nstrumenta\/developer:$VERSION/g" README.md
+  rm README.md.bak
+
+  echo "✅ Version updated to $VERSION"
+  echo ""
+
+  # Show what changed
+  echo "📝 Changes:"
+  git diff README.md
+  echo ""
+
+  # Confirm before committing
+  read -p "Commit these changes and create tag v$VERSION? (y/N) " -n 1 -r
+  echo
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Aborted. Rolling back changes..."
+    git checkout -- README.md
+    exit 1
+  fi
+
+  # Commit and tag
+  echo "📦 Committing changes..."
+  git add README.md
+  git commit -m "Release v$VERSION"
+else
+  echo "✅ Working directory is clean"
+  echo ""
+  
+  # Confirm before tagging
+  read -p "Create tag v$VERSION on current commit? (y/N) " -n 1 -r
+  echo
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Aborted."
+    exit 1
+  fi
+fi
 
 echo "🏷️  Creating tag v$VERSION..."
 git tag -a "v$VERSION" -m "Release v$VERSION"
